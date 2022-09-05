@@ -1,0 +1,42 @@
+.modal_top_container {
+    display: flex;
+    justify-content: space-between;
+    /* height: 40px; */
+    align-items: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 20px;
+    color: white;
+}
+
+.middle_container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: #f8fafb;
+    border-bottom: 1px #dbdee6 solid;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.groups {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.bottom_container {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    background-color: #f8fafb;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.button_group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
