@@ -156,8 +156,8 @@ export default function Table({ openModal }: any) {
     };
 
     const handleDeleteClick = (id: GridRowId) => () => {
-        store.dispatch(deleteUserAction(id))
-        setPage(0)
+        store.dispatch(deleteUserAction(id));
+        setPage(0);
         setRows(rows.filter((row: any) => row.id !== id));
     };
 
