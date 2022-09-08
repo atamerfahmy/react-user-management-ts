@@ -13,7 +13,7 @@ import { useFormik } from 'formik';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
 import store from '../../store/store';
-import { createUserAction } from '../../store/slices/users/users.actions';
+import { createUserAction, updateUserAction } from '../../store/slices/users/users.actions';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -34,31 +34,27 @@ const style = {
 interface IProps {
     handleClose: any;
     open: boolean;
+    data: any;
+    editing: boolean;
 }
 
 interface formikValues {
-    name?: string,
+    firstName?: string,
+    lastName?: string,
     username?: string,
     email?: string,
     group?: string,
     profile?: string
 }
 
-export default function BasicModal({ handleClose, open }: IProps) {
-
-
-    // const [name, setName] = React.useState("");
-    // const [username, setUsername] = React.useState("");
-    // const [email, setEmail] = React.useState("");
-    // const [group, setGroup] = React.useState("");
-    // const [profile, setProfile] = React.useState("");
+export default function BasicModal({ handleClose, open, data, editing }: IProps) {
 
     const validate = (values: formikValues) => {
         const errors: formikValues = {};
-        if (!values.name) {
-            errors.name = 'Required';
-        } else if (values.name.length > 15) {
-            errors.name = 'Must be 15 characters or less';
+        if (!values.firstName) {
+            errors.firstName = 'Required';
+        } else if (values.firstName.length > 15) {
+            errors.firstName = 'Must be 15 characters or less';
         }
 
         if (!values.username) {
@@ -84,7 +80,8 @@ export default function BasicModal({ handleClose, open }: IProps) {
 
     const formik = useFormik({
         initialValues: {
-            name: '',
+            firstName: '',
+            lastName: '',
             username: '',
             email: '',
             group: '',
@@ -92,8 +89,12 @@ export default function BasicModal({ handleClose, open }: IProps) {
         },
         validate,
         onSubmit: async values => {
-            alert(JSON.stringify(values, null, 2));
-            store.dispatch(createUserAction({ ...values, firstName: values.name, lastName: values.name }))
+
+            if (editing) {
+                store.dispatch(updateUserAction({ ...data, ...values, firstName: values.firstName, lastName: values.lastName, }))
+            } else {
+                store.dispatch(createUserAction({ ...values, firstName: values.firstName, lastName: values.lastName }))
+            }
             formik.resetForm();
             handleClose();
         },
@@ -103,6 +104,17 @@ export default function BasicModal({ handleClose, open }: IProps) {
         formik.resetForm();
         handleClose();
     }
+
+    React.useEffect(() => {
+        formik.setValues({
+            email: data.email,
+            group: data.title,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            profile: data.profile,
+            username: data.lastName
+        });
+    }, [data, editing])
 
     return (
         <div>
@@ -114,7 +126,7 @@ export default function BasicModal({ handleClose, open }: IProps) {
             >
                 <Box sx={style}>
                     <Box className={styles.modal_top_container} sx={{ backgroundColor: NAVBAR_BACKGROUND_COLOR }}>
-                        <Typography fontSize={"20px"}>Add New User</Typography>
+                        <Typography fontSize={"20px"}>{editing ? "Update User" : "Add New User"}</Typography>
                         <IconButton onClick={handleClose}>
 
                             <ClearIcon sx={{
@@ -124,15 +136,26 @@ export default function BasicModal({ handleClose, open }: IProps) {
                     </Box>
                     <Box className={styles.middle_container}>
                         <Box className={styles.groups}>
-                            <Typography fontSize={"16px"} fontWeight={600}>Full Name</Typography>
-                            <FormHelperText color='red'>{formik.errors.name}</FormHelperText>
-                            <TextField id="name" placeholder='Enter full name' sx={{
+                            <Typography fontSize={"16px"} fontWeight={600}>First Name</Typography>
+                            <FormHelperText color='red'>{formik.errors.firstName}</FormHelperText>
+                            <TextField id="firstName" placeholder='Enter first name' sx={{
                                 backgroundColor: 'white', '.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input': {
                                     padding: "10px 10px"
                                 }
                             }}
                                 onChange={formik.handleChange}
-                                value={formik.values.name} />
+                                value={formik.values.firstName} />
+                        </Box>
+                        <Box className={styles.groups}>
+                            <Typography fontSize={"16px"} fontWeight={600}>Last Name</Typography>
+                            <FormHelperText color='red'>{formik.errors.lastName}</FormHelperText>
+                            <TextField id="lastName" placeholder='Enter last name' sx={{
+                                backgroundColor: 'white', '.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input': {
+                                    padding: "10px 10px"
+                                }
+                            }}
+                                onChange={formik.handleChange}
+                                value={formik.values.lastName} />
                         </Box>
                         <Box className={styles.groups}>
                             <Typography fontSize={"16px"} fontWeight={600}>User Name</Typography>
@@ -209,13 +232,13 @@ export default function BasicModal({ handleClose, open }: IProps) {
                                 onClick={handleCancel}>Cancel</Button>
                             <Button
                                 variant="contained"
-                                color='success'
+                                color={editing ? "primary" : 'success'}
                                 sx={{
                                     backgroundColor: "#22a565",
                                     textTransform: "none"
                                 }}
                                 onClick={formik.submitForm}
-                            >Add User</Button>
+                            >{editing ? "Update User" : "Add User"}</Button>
                         </Box>
                     </Box>
 

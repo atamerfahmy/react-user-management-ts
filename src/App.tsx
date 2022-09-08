@@ -10,7 +10,7 @@ import { fetchUsersAction } from './store/slices/users/users.actions';
 function App() {
 
   useEffect(() => {
-    store.dispatch(fetchUsersAction())
+    store.dispatch(fetchUsersAction({ page: 0, limit: 25 }))
   }, [])
 
   return (

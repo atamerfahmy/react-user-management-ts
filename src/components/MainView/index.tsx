@@ -32,7 +32,14 @@ function MainView({ }: IProps) {
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleClose = () => {
+        setData({});
+        setOpen(false);
+        setEditing(false);
+    };
+
+    const [data, setData] = React.useState<any>({});
+    const [editing, setEditing] = React.useState<boolean>(false);
 
     return (
         <div className={styles.container}>
@@ -96,12 +103,16 @@ function MainView({ }: IProps) {
                     </Button>
                 </div>
                 <div className={styles.table}>
-                    <Table />
+                    <Table openModal={(row: any) => {
+                        setEditing(true)
+                        setData(row);
+                        handleOpen();
+                    }} />
                 </div>
 
             </div>
 
-            <Modal handleClose={handleClose} open={open} />
+            <Modal handleClose={handleClose} open={open} data={data} editing={editing} />
         </div>
     )
 }

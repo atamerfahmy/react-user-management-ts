@@ -24,7 +24,7 @@ import {
     GridRowModel,
 } from '@mui/x-data-grid-pro';
 import TextField from '@mui/material/TextField';
-import { deleteUserAction } from '../../store/slices/users/users.actions';
+import { deleteUserAction, fetchUsersAction } from '../../store/slices/users/users.actions';
 
 
 interface EditToolbarProps {
@@ -57,7 +57,7 @@ function EditToolbar(props: EditToolbarProps) {
     );
 }
 
-export default function Table() {
+export default function Table({ openModal }: any) {
     const selectedData = useSelector((state: RootState) => state.users);
 
     const columns: GridColumns = [
@@ -76,7 +76,7 @@ export default function Table() {
             headerName: 'Actions',
             width: 100,
             cellClassName: 'actions',
-            getActions: ({ id }) => {
+            getActions: ({ id, ...row }) => {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
                 if (isInEditMode) {
@@ -84,7 +84,7 @@ export default function Table() {
                         <GridActionsCellItem
                             icon={<SaveIcon />}
                             label="Save"
-                            onClick={handleSaveClick(id)}
+                            onClick={handleSaveClick(row, id)}
                         />,
                         <GridActionsCellItem
                             icon={<CancelIcon />}
@@ -97,13 +97,13 @@ export default function Table() {
                 }
 
                 return [
-                    <GridActionsCellItem
-                        icon={<EditIcon />}
-                        label="Edit"
-                        className="textPrimary"
-                        onClick={handleEditClick(id)}
-                        color="inherit"
-                    />,
+                    // <GridActionsCellItem
+                    //     icon={<EditIcon />}
+                    //     label="Edit"
+                    //     className="textPrimary"
+                    //     onClick={handleEditClick(id)}
+                    //     color="inherit"
+                    // />,
                     <GridActionsCellItem
                         icon={<DeleteIcon />}
                         label="Delete"
@@ -119,7 +119,6 @@ export default function Table() {
     const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
 
     React.useEffect(() => {
-        console.log({ data: selectedData.value })
         setRows(selectedData.value.data)
         setRowCountState(selectedData.value.total)
     }, [selectedData.value.data])
@@ -148,15 +147,17 @@ export default function Table() {
     };
 
     const handleEditClick = (id: GridRowId) => () => {
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+        openModal(rows.find((row: any) => row.id === id));
+        // setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     };
 
-    const handleSaveClick = (id: GridRowId) => () => {
+    const handleSaveClick = (row: any, id: GridRowId) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
     const handleDeleteClick = (id: GridRowId) => () => {
         store.dispatch(deleteUserAction(id))
+        setPage(0)
         setRows(rows.filter((row: any) => row.id !== id));
     };
 
@@ -176,6 +177,10 @@ export default function Table() {
     //     return updatedRow;
     // };
 
+    const handlePageChange = (newPage: number) => {
+        store.dispatch(fetchUsersAction({ page: newPage, limit: 25 }));
+        setPage(newPage)
+    }
     return (
         <div style={{ height: 500 }}>
             <DataGrid
@@ -185,11 +190,11 @@ export default function Table() {
                 rowCount={rowCountState}
                 rows={rows}
                 columns={columns}
-                editMode="row"
-                onRowClick={(e) => console.log("row clicked", e.row)}
+                // editMode="row"
+                onRowClick={(e) => openModal(e.row)}
                 rowModesModel={rowModesModel}
-                onRowEditStart={handleRowEditStart}
-                onRowEditStop={handleRowEditStop}
+                // onRowEditStart={handleRowEditStart}
+                // onRowEditStop={handleRowEditStop}
                 // processRowUpdate={processRowUpdate}
                 components={{
                     Toolbar: EditToolbar,
@@ -202,7 +207,7 @@ export default function Table() {
                 page={page}
                 pageSize={pageSize}
                 paginationMode="server"
-                onPageChange={(newPage) => setPage(newPage)}
+                onPageChange={handlePageChange}
                 onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
                 rowsPerPageOptions={[25]}
             />

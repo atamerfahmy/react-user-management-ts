@@ -1,20 +1,21 @@
 import apiClient from "../../../utils/apiClient";
+import { fecthPagination } from "./users.actions";
 const RESOURCE = "/user";
 
-const fetchUsers = () => {
-  return apiClient.get(RESOURCE);
+const fetchUsers = (payload: fecthPagination) => {
+  return apiClient.get(RESOURCE + `?page=${payload.page}&limit=${payload.limit}`);
 };
 
-const deleteUser = (postId: string) => {
-  return apiClient.delete(`${RESOURCE}/${postId}`);
+const deleteUser = (userId: string) => {
+  return apiClient.delete(`${RESOURCE}/${userId}`);
 };
 
 const createUser = (payload: any) => {
   return apiClient.post(`${RESOURCE}/create`, {...payload});
 };
 
-const fetchRelatedUsers = (userId: string) => {
-  return apiClient.get(`${RESOURCE}?userId=${userId}`);
+const updateUser = (payload: any) => {
+  return apiClient.put(`${RESOURCE}/${payload.id}`, payload);
 };
 
-export { fetchUsers, deleteUser, createUser, fetchRelatedUsers };
+export { fetchUsers, deleteUser, createUser, updateUser };
